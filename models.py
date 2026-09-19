@@ -8,14 +8,16 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False)
-    roll_no = db.Column(db.String(20))
+    # One student account per roll number (NULL for admins)
+    roll_no = db.Column(db.String(20), unique=True)
 
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     roll_no = db.Column(db.String(20), unique=True, nullable=False)
-    results = db.relationship('Result', backref='student', lazy=True)
+    results = db.relationship('Result', backref='student', lazy=True,
+                              cascade='all, delete-orphan')
 
 
 class Result(db.Model):

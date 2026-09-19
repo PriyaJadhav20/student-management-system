@@ -21,7 +21,7 @@
     <div class="card p-4 shadow col-md-5">
 
         <h3 class="text-center fw-bold">Create Account</h3>
-        <p class="text-center text-muted small mb-3">Register to get started</p>
+        <p class="text-center text-muted small mb-3">Student registration</p>
 
         <!-- 🔥 FLASH MESSAGE -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,6 +40,7 @@
         {% endif %}
 
         <form method="POST" onsubmit="return validateForm()">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <!-- USERNAME -->
             <input type="text" name="username" class="form-control mb-2"
@@ -49,7 +50,7 @@
             <!-- PASSWORD -->
             <div class="input-group mt-2 mb-2">
                 <input type="password" name="password" id="password"
-                       class="form-control" placeholder="Password" required>
+                       class="form-control" placeholder="Password (min 8 characters)" required minlength="8">
 
                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
                     👁️
@@ -65,19 +66,13 @@
                 Passwords do not match
             </small>
 
-            <!-- ROLE -->
-            <select name="role" class="form-control mt-3 mb-3"
-                    required onchange="toggleRoll(this.value)">
-                <option value="">Select Role</option>
-                <option value="student">Student</option>
-                <option value="admin">Admin</option>
-            </select>
-
-            <!-- ROLL NUMBER -->
+            <!-- ROLL NUMBER (students only - must already exist) -->
             <input type="text" name="roll_no" id="rollField"
-                   class="form-control mb-3"
-                   placeholder="Roll Number"
-                   style="display:none;">
+                   class="form-control mb-1"
+                   placeholder="Roll Number" required>
+            <small class="text-muted d-block mb-3">
+                Your admin must have added your results first.
+            </small>
 
             <!-- SUBMIT -->
             <button class="btn btn-success w-100 mb-2">Register</button>
@@ -98,11 +93,6 @@
 function togglePassword() {
     const field = document.getElementById("password");
     field.type = field.type === "password" ? "text" : "password";
-}
-
-function toggleRoll(role) {
-    const field = document.getElementById("rollField");
-    field.style.display = (role === "student") ? "block" : "none";
 }
 
 function validateForm() {

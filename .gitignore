@@ -1,0 +1,9 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+# Local databases hold real usernames and password hashes - never commit them
+*.db
+instance/

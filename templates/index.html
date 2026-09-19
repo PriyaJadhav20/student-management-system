@@ -24,7 +24,7 @@
 <nav class="navbar navbar-dark bg-primary px-4">
     <span class="navbar-brand fw-bold">Student Management System</span>
     <div class="text-white">
-        {{ session['user'] }} |
+        {{ session['user'] }} ({{ session['role'] }}) |
         <a href="/logout" class="text-white text-decoration-none">Logout</a>
     </div>
 </nav>
@@ -45,21 +45,26 @@
 
         <div class="col-md-4">
             <div class="card card-box blue p-3 shadow">
+                {% if session['role'] == 'admin' %}
                 <h5>Total Students</h5>
                 <h2>{{ total_students }}</h2>
+                {% else %}
+                <h5>Roll No</h5>
+                <h2>{{ session['roll_no'] }}</h2>
+                {% endif %}
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card card-box green p-3 shadow">
-                <h5>Total Results</h5>
+                <h5>{{ "Total Results" if session['role'] == 'admin' else "Your Subjects" }}</h5>
                 <h2>{{ total_results }}</h2>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card card-box orange p-3 shadow">
-                <h5>Average Marks</h5>
+                <h5>{{ "Average Marks" if session['role'] == 'admin' else "Your Average" }}</h5>
                 <h2>{{ avg_marks }}</h2>
             </div>
         </div>
@@ -67,9 +72,11 @@
     </div>
 
     <!-- 🔍 SEARCH -->
-    <form method="GET" class="mb-3">
-        <input type="text" name="search" class="form-control"
+    <form method="GET" class="mb-3 d-flex gap-2">
+        <input type="text" name="search" value="{{ search }}" class="form-control"
                placeholder="Search by name or roll number">
+        <button class="btn btn-primary">Search</button>
+        {% if search %}<a href="/" class="btn btn-outline-secondary">Clear</a>{% endif %}
     </form>
 
     <!-- ➕ ADD FORM (ONLY ADMIN) -->
@@ -78,6 +85,7 @@
         <h5>Add Student Result</h5>
 
         <form method="POST" action="/add" class="row g-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="col-md-3">
                 <input type="text" name="name" class="form-control" placeholder="Name" required>
             </div>
@@ -88,7 +96,7 @@
                 <input type="text" name="subject" class="form-control" placeholder="Subject" required>
             </div>
             <div class="col-md-2">
-                <input type="number" name="marks" class="form-control" placeholder="Marks" required>
+                <input type="number" name="marks" class="form-control" placeholder="Marks" min="0" max="100" required>
             </div>
             <div class="col-md-2">
                 <button class="btn btn-success w-100">Add</button>
@@ -127,7 +135,9 @@
                         <td>
                             <a href="/edit/{{ result.id }}" class="btn btn-warning btn-sm">Edit</a>
 
-                            <form action="/delete/{{ result.id }}" method="POST" style="display:inline;">
+                            <form action="/delete/{{ result.id }}" method="POST" style="display:inline;"
+                                  onsubmit="return confirm('Delete this result?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </form>
                         </td>
@@ -135,6 +145,9 @@
                     </tr>
                     {% endfor %}
                 {% endfor %}
+                {% if not students %}
+                <tr><td colspan="5" class="text-center text-muted">No records found.</td></tr>
+                {% endif %}
             </tbody>
 
         </table>
